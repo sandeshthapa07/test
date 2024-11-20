@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  scroll-behavior: smooth;
+}
+.swiper {
+  width: 100%;
+  height: 100%;
+}
+
+.common-padding {
+  @apply px-6 xmd:px-16 xl:px-[6.25rem] 3xl:px-[9.375rem];
+}
+
+.main-common-padding {
+  @apply mx-auto px-6 xmd:px-16 xl:px-[6.25rem] py-[3.75rem]  xmd:py-20 xl:py-[6.25rem] 3xl:px-[9.375rem];
+}
+.common-section {
+  @apply mx-auto flex  flex-col items-center gap-10 xmd:gap-[3.25rem]  py-[3.75rem]  xmd:py-20 xl:py-[6.25rem] 3xl:px-[9.375rem];
+}
+
+.swiper-slide {
+  @apply !p-6   !m-0;
+}
+
+.swiper-grid-column > .swiper-wrapper {
+  flex-direction: row !important;
+}
+
+.react-date-picker {
+  @apply bg-lightShad2;
+}
+.react-date-picker__wrapper {
+  border: none !important;
+}
+.react-calendar__tile--active {
+  @apply bg-primary !important;
+}
+.react-date-picker__clear-button {
+  @apply hidden !important;
+}
+
+/* .icon-float {
+  animation: float 6s ease-in-out infinite;
+} */
+
+/* @keyframes float {
+  0% {
+    transform: translatey(0px);
+  }
+  50% {
+    transform: translatey(-10px);
+  }
+  100% {
+    transform: translatey(0px);
+  }
+}  */
+
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+/* Custom scrollbar for the horizontal scrolling div */
+.scroll-container::-webkit-scrollbar {
+  height: 8px; /* scrollbar height */
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: #4a5568; /* scrollbar color */
+  border-radius: 4px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background-color: #edf2f7; /* scrollbar track color */
+}
+
+/* triangle  */
+.triangle {
+  --r: 30px; /* border radius */
+
+  width: 210px;
+  aspect-ratio: 1 / cos(30deg);
+  --_g: calc(tan(60deg) * var(--r)) bottom var(--r), red 98%, #0000 101%;
+  -webkit-mask:
+    conic-gradient(from -30deg at 50% calc(200% - 3 * var(--r) / 2), #000 60deg, #0000 0) 0 100%/100%
+      calc(100% - 3 * var(--r) / 2) no-repeat,
+    radial-gradient(var(--r) at 50% calc(2 * var(--r)), #000 98%, #0000 101%),
+    radial-gradient(var(--r) at left var(--_g)),
+    radial-gradient(var(--r) at right var(--_g));
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}

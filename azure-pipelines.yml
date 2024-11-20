@@ -1,0 +1,146 @@
+trigger:
+  - aitc-v4-dev
+
+# pr:
+# - '*'
+
+pool:
+  name: 'AITC'
+  demands:
+    - Agent.Name -equals AITC_userside_aws
+
+variables:
+  - group: AITC_USERSIDE_DEV
+
+stages:
+  - stage: CodeApproval
+    jobs:
+      - deployment: CodeApproval
+        displayName: 'Code Approval'
+        environment: 'code_approval_frontend'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: |
+                    echo "Code Approval Method executed successfully..."
+
+  - stage: BuildAndDeploy
+    jobs:
+      - job: Build
+        displayName: 'Build'
+        steps:
+          - script: |
+              echo "Checking for Docker..."
+              if ! command -v docker &> /dev/null
+              then
+                  echo "Docker is not installed. Installing Docker..."
+                  apt-get update
+                  apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+                  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+                  add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+                  apt-get update
+                  apt-get install -y docker-ce
+                  systemctl start docker
+                  systemctl enable docker
+                  echo "Docker installed successfully"
+              else
+                  echo "Docker is already installed"
+              fi
+
+            displayName: 'Install Docker'
+            failOnStderr: 'false'
+
+          - script: |
+              echo "Checking for make package..."
+              if ! command -v make &> /dev/null
+              then
+                  echo "make is not installed. Installing make..."
+                  apt-get update
+                  apt-get install -y make
+              else
+                  echo "make is already installed"
+              fi
+            displayName: 'Install make'
+            failOnStderr: 'false'
+
+          - script: |
+              echo "Creating .env file from specified environment variables..."
+              rm -f .env  # Remove any existing .env file
+
+              touch .env  # Create a new .env file
+
+              # Define the list of environment variables to be included
+              VARIABLES=(
+                "PORT"
+                "NEXT_PUBLIC_BASE_URL"
+                "NEXT_PUBLIC_CLIENT_URL"
+                "NEXT_PUBLIC_RECAPTCHA_SITE_KEY"
+                "NODE_ENV"
+                "PORT_DEV"
+                "PORT_PROD"
+                "RECAPTCHA_SECRET_KEY"
+              )
+
+              # Loop through the list and add each variable to the .env file
+              for var in "${VARIABLES[@]}"; do
+                value=$(printenv $var)
+                if [ -n "$value" ]; then
+                  printf "%s=%s\n" "$var" "$value" >> .env
+                fi
+              done
+
+              echo ".env file created successfully"
+              echo "Contents of .env file (excluding sensitive data):"
+              # Show non-sensitive contents
+              cat .env
+            displayName: 'Create .env file from specified environment variables'
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(System.DefaultWorkingDirectory)'
+              artifact: 'aitc_v3_userside_artifact_$(Build.BuildId)'
+            displayName: 'Publish Build Artifacts'
+          - script: |
+              echo "Current working directory is: $(System.DefaultWorkingDirectory)"
+              echo "Deploying the project with Docker... (NODE_ENV: $NODE_ENV)"
+
+              # Clean up the Docker resources
+              make clean
+
+              make clean-unused
+
+              # Build and start the Docker containers
+              # Determine which build to run based on NODE_ENV
+              if [ "$NODE_ENV" = "production" ]; then
+                echo "Running production build..."
+                make build-prod
+                echo "Stopping any existing containers..."
+                make stop-prod
+                echo "Running production..."
+                make run-prod
+              else
+                echo "Running development build..."
+                make build-dev
+                echo "Stopping any existing containers..."
+                make stop-dev
+                echo "Running development..."
+                make run-dev
+              fi
+              # Wait for the service to start
+              echo "Waiting for service to start..."
+              for i in {1..5}; do
+              if docker ps | grep -q s-aitc-v3.0-userside-dev; then
+                echo "Service is up and running!"
+                echo "Deployment successful!"
+                exit 0
+              fi
+              echo "Waiting for service to start... (attempt $i)"
+              sleep 10
+              done
+
+              echo "Service failed to start within the expected time."
+              make logs
+              exit 1
+            displayName: 'Deploy With Docker'
+            workingDirectory: $(System.DefaultWorkingDirectory)

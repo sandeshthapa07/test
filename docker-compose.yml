@@ -1,0 +1,37 @@
+services:
+  aitc_website_local:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      # Only will build development stage from our dockerfile
+      target: runner
+    image: aitc-v3.0-userside-dev
+    env_file:
+      - ./.env
+    # command: node server.js
+    ports:
+      - ${PORT}:${PORT}
+
+  aitc_website_dev:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      # Only will build development stage from our dockerfile
+      target: runner
+    image: aitc-v3.0-userside-dev
+    env_file:
+      - ./.env
+    # command: node server.js
+    ports:
+      - ${PORT}:${PORT}
+
+  aitc_website_prod:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: runner
+    env_file:
+      - ./.env
+    command: node server.js
+    ports:
+      - ${PORT}:${PORT}

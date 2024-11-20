@@ -1,0 +1,43 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "tailwindcss"],
+  "parserOptions": {
+    "project": "./tsconfig.json" // Path to your tsconfig.json file
+  },
+  "extends": [
+    "next/core-web-vitals",
+    "next/typescript",
+    "plugin:tailwindcss/recommended",
+    "next",
+    "prettier",
+    "plugin:@typescript-eslint/recommended-type-checked"
+  ],
+  "rules": {
+    "prefer-arrow-callback": ["error"],
+    "prefer-template": ["error"],
+    "tailwindcss/no-custom-classname": "off",
+    "@typescript-eslint/consistent-type-imports": [
+      "warn",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "inline-type-imports"
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ]
+  },
+
+  "settings": {
+    "tailwindcss": {
+      "callees": ["cn", "cva"],
+      "config": "tailwind.config.ts"
+    },
+    "next": {
+      "rootDir": ["./"]
+    }
+  }
+}
