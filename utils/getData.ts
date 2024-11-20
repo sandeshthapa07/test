@@ -1,7 +1,7 @@
 // Generic API function using fetch to fetch data and handle errors
 export const fetchData = async <T>(url: string): Promise<T> => {
   try {
-    const response = await fetch(process.env.NEXT_PUBLIC_BASE_URL + url, {
+    const response = await fetch(`https://staging-server.aitc.ai/api/v3/user${url}`, {
       method: 'GET',
       headers: {
         accept: 'application/json',
@@ -34,7 +34,7 @@ export const fetchData = async <T>(url: string): Promise<T> => {
 
 export const fetchPaginationData = async <T>(url: string): Promise<T> => {
   try {
-    const response = await fetch(process.env.NEXT_PUBLIC_BASE_URL + url, {
+    const response = await fetch(`https://staging-server.aitc.ai/api/v3/user${url}`, {
       method: 'GET',
       headers: {
         accept: 'application/json',
